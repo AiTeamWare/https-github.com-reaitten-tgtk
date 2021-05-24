@@ -3,10 +3,10 @@
 
 from telethon.tl.types import KeyboardButtonCallback,KeyboardButton
 from telethon import events
-from tortoolkit import SessionVars
+from tgtk import SessionVars
 import asyncio as aio
 from .getVars import get_val
-from .database_handle import TorToolkitDB
+from .database_handle import tkdb
 from .. import user_db
 from functools import partial
 import time,os,configparser,logging,traceback
@@ -23,8 +23,8 @@ TIMEOUT_SEC = 60
 no = "❌"
 yes = "✅"
 # Central object is not used its Acknowledged 
-tordb = TorToolkitDB()
-header =  '<b>**TorToolKit** by <a href="https://github.com/yash-dk">YashDK</a></b>\n<u>USER SETTINGS MENU - v1</u>'
+tordb = tkdb()
+header =  '<b>tgtk - a telegram leecher bot.\n</b>\n<u>user settings menu</u>'
 async def handle_user_setting_callback(e):
     db = tordb
     sender_id = str(e.sender_id)
@@ -120,9 +120,9 @@ async def handle_user_settings(e,edit=False,msg="",submenu=None,sender_id=None):
 
 
         if edit:
-            rmess = await e.edit(header+"\nEnjoiii.\n"+msg,parse_mode="html",buttons=menu,link_preview=False, file="toolkit.jpg")
+            rmess = await e.edit(header+"\nEnjoiii.\n"+msg,parse_mode="html",buttons=menu,link_preview=False, file="tk.jpg")
         else:
-            rmess = await e.reply(header+"\nEnjoiii.\n",parse_mode="html",buttons=menu,link_preview=False, file="toolkit.jpg")
+            rmess = await e.reply(header+"\nEnjoiii.\n",parse_mode="html",buttons=menu,link_preview=False, file="tk.jpg")
     elif submenu == "rclonemenu":
         rcval = await get_string_variable("RCLONE_CONFIG",menu,"rcloneconfig",sender_id)
         if rcval != "None":
