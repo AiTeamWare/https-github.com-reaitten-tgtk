@@ -3,10 +3,10 @@
 
 from telethon.tl.types import KeyboardButtonCallback,KeyboardButton
 from telethon import events
-from tgtk import SessionVars
+from tortoolkit import SessionVars
 import asyncio as aio
 from .getVars import get_val
-from .database_handle import tkdb
+from .database_handle import TorToolkitDB
 from .. import user_db
 from functools import partial
 import time,os,configparser,logging,traceback
@@ -20,11 +20,11 @@ TIMEOUT_SEC = 60
 # this file will contian all the handlers and code for settings
 # code can be more modular i think but not bothering now
 # todo make the code more modular
-no = "✖"
-yes = "✔"
+no = "❌"
+yes = "✅"
 # Central object is not used its Acknowledged 
-tordb = tkdb()
-header =  '<b>tgtk - a telegram leecher bot.\n</b>\n<u>user settings menu</u>'
+tordb = TorToolkitDB()
+header =  '<b>**TorToolKit** by <a href="https://github.com/yash-dk">YashDK</a></b>\n<u>USER SETTINGS MENU - v1</u>'
 async def handle_user_setting_callback(e):
     db = tordb
     sender_id = str(e.sender_id)
@@ -37,7 +37,7 @@ async def handle_user_setting_callback(e):
     
     if cmd[-1] != sender_id:
         print("Sender id",sender_id," - - ",cmd[-1])
-        await e.answer("not yours.",alert=True)
+        await e.answer("Dont touch sender dosent match.",alert=True)
         #await e.delete()
         return
     if cmd[1] == "mycmd":
@@ -49,29 +49,29 @@ async def handle_user_setting_callback(e):
     elif cmd[1] == "thumbmenu":
         # this is menu
         mmes = await e.get_message()
-        await handle_user_settings(mmes,True,"\nthumbnail menu.",submenu="thumbmenu",sender_id=sender_id)
+        await handle_user_settings(mmes,True,"\nWelcome to Thumbnail Menu.",submenu="thumbmenu",sender_id=sender_id)
     elif cmd[1] == "rcloneconfig":
-        await e.answer("send the rclone config file which you have generated.",alert=True)
+        await e.answer("Send the rclone config file which you have generated.",alert=True)
         mmes = await e.get_message()
         await mmes.edit(f"{mmes.raw_text}\n/ignore to go back",buttons=None)
         val = await get_value(e,True)
         
         await general_input_manager(e,mmes,"RCLONE_CONFIG","str",val,sender_id,"rclonemenu")  
     elif cmd[1] == "setthumb":
-        await e.answer("send the thumbnail.", alert=True)
+        await e.answer("Send the thumbnail.", alert=True)
         mmes = await e.get_message()
         await mmes.edit(f"{mmes.raw_text}\n /ignore to go back.", buttons=None)
         val = await get_value(e,file=True,photo=True)
         await general_input_manager(e,mmes,"THUMBNAIL","str",val,sender_id,"thumbmenu")  
 
     elif cmd[1] == "selfdest":
-        await e.answer("closed.")
+        await e.answer("Closed")
         await e.delete()
     elif cmd[1] == "change_drive":
-        await e.answer(f"changed default drive to {cmd[2]}.",alert=True)
+        await e.answer(f"Changed default drive to {cmd[2]}.",alert=True)
         user_db.set_var("DEF_RCLONE_DRIVE",str(cmd[2]), e.sender_id)
 
-        await handle_user_settings(await e.get_message(),True,f"<b><u>changed the default drive to {cmd[2]}</b></u>","rclonemenu",sender_id=sender_id)
+        await handle_user_settings(await e.get_message(),True,f"<b><u>Changed the default drive to {cmd[2]}</b></u>","rclonemenu",sender_id=sender_id)
     elif cmd[1] == "mainmenu":
         # this is menu
         mmes = await e.get_message()
@@ -84,7 +84,7 @@ async def handle_user_setting_callback(e):
             val = False
         
         user_db.set_var("FORCE_DOCUMENTS",val, str(e.sender_id))
-        await handle_user_settings(await e.get_message(),True,f"<b><u>changed the value to {val} of force documents.</b></u>",sender_id=sender_id)
+        await handle_user_settings(await e.get_message(),True,f"<b><u>Changed the value to {val} of force documents.</b></u>",sender_id=sender_id)
     elif cmd[1] == "disablethumb":
         await e.answer("")
         if cmd[2] == "true":
@@ -93,7 +93,7 @@ async def handle_user_setting_callback(e):
             val = False
         
         user_db.set_var("DISABLE_THUMBNAIL",val, str(e.sender_id))
-        await handle_user_settings(await e.get_message(),True,f"<b><u>changed the value to {val} of disable thumbnail.</b></u>",sender_id=sender_id, submenu="thumbmenu")
+        await handle_user_settings(await e.get_message(),True,f"<b><u>Changed the value to {val} of disable thumbnail.</b></u>",sender_id=sender_id, submenu="thumbmenu")
 
 
 
@@ -111,18 +111,18 @@ async def handle_user_settings(e,edit=False,msg="",submenu=None,sender_id=None):
     if submenu is None:
         await get_bool_variable("FORCE_DOCUMENTS","FORCE_DOCUMENTS",menu,"fdocs",sender_id)#
         #await get_string_variable("RCLONE_CONFIG",menu,"rcloneconfig",session_id)
-        await get_sub_menu("open rclone menu","rclonemenu",sender_id,menu)#
-        await get_sub_menu("open thumbnail menu","thumbmenu",sender_id,menu)#
+        await get_sub_menu("☁️ Open Rclone Menu ☁️","rclonemenu",sender_id,menu)#
+        await get_sub_menu("🖼 Open Thumbnail Menu 🖼","thumbmenu",sender_id,menu)#
         # thumbnail
         menu.append(
-            [KeyboardButtonCallback("close menu.",f"usettings selfdest {sender_id}".encode("UTF-8"))]
+            [KeyboardButtonCallback("Close Menu",f"usettings selfdest {sender_id}".encode("UTF-8"))]
         )
 
 
         if edit:
-            rmess = await e.edit(header+"\nEnjoy.\n"+msg,parse_mode="html",buttons=menu,link_preview=False, file="tk.jpg")
+            rmess = await e.edit(header+"\nEnjoiii.\n"+msg,parse_mode="html",buttons=menu,link_preview=False, file="toolkit.jpg")
         else:
-            rmess = await e.reply(header+"\nEnjoy.\n",parse_mode="html",buttons=menu,link_preview=False, file="tk.jpg")
+            rmess = await e.reply(header+"\nEnjoiii.\n",parse_mode="html",buttons=menu,link_preview=False, file="toolkit.jpg")
     elif submenu == "rclonemenu":
         rcval = await get_string_variable("RCLONE_CONFIG",menu,"rcloneconfig",sender_id)
         if rcval != "None":
@@ -150,35 +150,35 @@ async def handle_user_settings(e,edit=False,msg="",submenu=None,sender_id=None):
                             [KeyboardButtonCallback(f"{prev}{j} - ND",f"usettings change_drive {j} {sender_id}")]
                         )
 
-        await get_sub_menu("go back ⬅️","mainmenu",sender_id,menu)
+        await get_sub_menu("Go Back ⬅️","mainmenu",sender_id,menu)
         menu.append(
-            [KeyboardButtonCallback("close menu",f"usettings selfdest {sender_id}".encode("UTF-8"))]
+            [KeyboardButtonCallback("Close Menu",f"usettings selfdest {sender_id}".encode("UTF-8"))]
         )
         if edit:
-            rmess = await e.edit(header+"\nit is recommended to lock the group before setting vars.\n"+msg,parse_mode="html",buttons=menu,link_preview=False)
+            rmess = await e.edit(header+"\nIts recommended to lock the group before setting vars.\n"+msg,parse_mode="html",buttons=menu,link_preview=False)
 
 
     elif submenu == "thumbmenu":
         thumb = user_db.get_thumbnail(sender_id)
         if thumb is not False:
             menu.append(
-                [KeyboardButtonCallback("change thumbnail", f"usettings setthumb {sender_id}".encode("UTF-8"))]
+                [KeyboardButtonCallback("Change Thumbnail", f"usettings setthumb {sender_id}".encode("UTF-8"))]
             )
             await get_bool_variable("DISABLE_THUMBNAIL","Disable Thumbnail",menu,"disablethumb",sender_id)
-            await get_sub_menu("go back ⬅️","mainmenu",sender_id,menu)
+            await get_sub_menu("Go Back ⬅️","mainmenu",sender_id,menu)
             menu.append(
-                [KeyboardButtonCallback("close menu",f"usettings selfdest {sender_id}".encode("UTF-8"))]
+                [KeyboardButtonCallback("Close Menu",f"usettings selfdest {sender_id}".encode("UTF-8"))]
             )
-            await e.edit(header+"\nmanage your thumbnail(s) on the fly.", file=thumb, buttons=menu, parse_mode="html")
+            await e.edit(header+"\nManage your thumbnail(s) on the fly.", file=thumb, buttons=menu, parse_mode="html")
         else:
             menu.append(
-                [KeyboardButtonCallback("set thumbnail.", f"usettings setthumb {sender_id}".encode("UTF-8"))]
+                [KeyboardButtonCallback("Set Thumbnail.", f"usettings setthumb {sender_id}".encode("UTF-8"))]
             )
-            await get_sub_menu("go back ⬅️","mainmenu",sender_id,menu)
+            await get_sub_menu("Go Back ⬅️","mainmenu",sender_id,menu)
             menu.append(
-                [KeyboardButtonCallback("close menu",f"usettings selfdest {sender_id}".encode("UTF-8"))]
+                [KeyboardButtonCallback("Close Menu",f"usettings selfdest {sender_id}".encode("UTF-8"))]
             )
-            await e.edit(header+"\nmanage your thumbnail(s) on the fly.", parse_mode="html", buttons=menu)
+            await e.edit(header+"\nManage your thumbnail(s) on the fly.", parse_mode="html", buttons=menu)
 
 # an attempt to manager all the input
 async def general_input_manager(e,mmes,var_name,datatype,value,sender_id,sub_menu):
@@ -217,7 +217,7 @@ async def general_input_manager(e,mmes,var_name,datatype,value,sender_id,sub_men
                             #SessionVars.update_var("LEECH_ENABLED",True)
                         except Exception:
                             torlog.error(traceback.format_exc())
-                            await handle_user_settings(mmes,True,f"<b><u>the configuration file is invalid, check logs.</b></u>",sub_menu)
+                            await handle_user_settings(mmes,True,f"<b><u>The conf file is invalid check logs.</b></u>",sub_menu)
                             return
                     elif var_name == "THUMBNAIL":
                         try:
@@ -232,22 +232,22 @@ async def general_input_manager(e,mmes,var_name,datatype,value,sender_id,sub_men
                             os.remove(value)
                         except Exception:
                             torlog.error(traceback.format_exc())
-                            await handle_user_settings(mmes,True,f"<b><u>an error occured with the thumbnail you sent.</b></u>",sub_menu)
+                            await handle_user_settings(mmes,True,f"<b><u>Error in the thumbnail you sent.</b></u>",sub_menu)
                             return
                     else:
                         user_db.set_var(var_name, value, e.sender_id)
                         #db.set_variable(var_name,value)
                         #SessionVars.update_var(var_name,value)
                     
-                    await handle_user_settings(mmes,True,f"<b><u>received {var_name} value '{value}' with confirm.</b></u>",sub_menu, sender_id=sender_id)
+                    await handle_user_settings(mmes,True,f"<b><u>Received {var_name} value '{value}' with confirm.</b></u>",sub_menu, sender_id=sender_id)
                 except ValueError:
-                    await handle_user_settings(mmes,True,f"<b><u>value [{value}] not valid try again and enter {datatype}.</b></u>",sub_menu, sender_id=sender_id)    
+                    await handle_user_settings(mmes,True,f"<b><u>Value [{value}] not valid try again and enter {datatype}.</b></u>",sub_menu, sender_id=sender_id)    
             else:
-                await handle_user_settings(mmes,True,f"<b><u>confirm differed by user.</b></u>",sub_menu, sender_id=sender_id)
+                await handle_user_settings(mmes,True,f"<b><u>Confirm differed by user.</b></u>",sub_menu, sender_id=sender_id)
         else:
-            await handle_user_settings(mmes,True,f"<b><u>confirm timed out [waited 60s for input].</b></u>",sub_menu, sender_id=sender_id)
+            await handle_user_settings(mmes,True,f"<b><u>Confirm timed out [waited 60s for input].</b></u>",sub_menu, sender_id=sender_id)
     else:
-        await handle_user_settings(mmes,True,f"<b><u>entry timed out [waited 60s for input].</b></u>",sub_menu, sender_id=sender_id)
+        await handle_user_settings(mmes,True,f"<b><u>Entry Timed out [waited 60s for input]. OR else ignored.</b></u>",sub_menu, sender_id=sender_id)
 
 
 async def get_value(e,file=False,photo=False):
@@ -348,7 +348,7 @@ async def get_confirm_callback(e,o_sender,lis):
 
 async def confirm_buttons(e,val):
     # add the confirm buttons at the bottom of the message
-    await e.edit(f"confirm the input : <u>{val}</u>",buttons=[KeyboardButtonCallback("yes","confirmsetting true"),KeyboardButtonCallback("no","confirmsetting false")],parse_mode="html")
+    await e.edit(f"Confirm the input :- <u>{val}</u>",buttons=[KeyboardButtonCallback("Yes","confirmsetting true"),KeyboardButtonCallback("No","confirmsetting false")],parse_mode="html")
 
 async def get_bool_variable(var_name,msg,menu,callback_name,sender_id):
     # handle the vars having bool values
@@ -380,9 +380,9 @@ async def get_string_variable(var_name,menu,callback_name,sender_id):
     if var_name == "RCLONE_CONFIG":
         rfile = user_db.get_rclone(sender_id)
         if rfile is False:
-            val = "file didn't load."
+            val = "File is not loaded."
         else:
-            val = "file loaded"
+            val = "File is Loaded"
             #val = "Custom file is loaded."
     else:
         val = user_db.get_var(var_name, sender_id)
